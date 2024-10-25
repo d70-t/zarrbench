@@ -1,6 +1,6 @@
 [project]
 name = "zarrbench"
-description = "Add your description here"
+description = "Measure request handling performance of HTTP servers serving zarr datasets."
 readme = "README.md"
 authors = [
     { name = "Tobias Kölling", email = "tobias.koelling@mpimet.mpg.de" }
