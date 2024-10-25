@@ -2,8 +2,8 @@ import asyncio
 from .bench import main
 
 
-def cli() -> None:
-    exit(asyncio.run(main()))
+def cli() -> int:
+    return asyncio.run(main())
 
 
 if __name__ == "__main__":
