@@ -1,0 +1,43 @@
+name: Build, Test and Deploy
+
+on:
+  release:
+    types: [created]
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Ruff Check
+        run: uv run ruff check
+      
+      - name: Ruff Format Check
+        run: uv run ruff format --check
+      
+      - name: MyPy Check
+        run: uv run mypy --strict src
+
+      - name: Build package
+        run: uv build
+
+      - name: Publish package
+        if: "${{ github.event_name == 'release' }}"
+        run: uv publish
