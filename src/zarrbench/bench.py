@@ -1,4 +1,5 @@
 import time
+import ssl
 import asyncio
 import aiohttp
 import aiohttp.typedefs
@@ -11,6 +12,11 @@ get_perf_time = time.monotonic
 
 # def get_perf_time():
 #    asyncio.get_running_loop().time()
+
+
+def get_certifi_location() -> str:
+    import certifi
+    return certifi.where()
 
 
 @dataclass
@@ -199,6 +205,12 @@ async def main() -> int:
         action="store_true",
         help="decompress HTTP compression",
     )
+    parser.add_argument(
+        "--certifi",
+        default=False,
+        action="store_true",
+        help="use certifi instead of system-installed SSL certificates",
+    )
     args = parser.parse_args()
 
     rng = np.random.default_rng(args.seed)
@@ -260,8 +272,14 @@ async def main() -> int:
     trace_config.on_connection_create_end.append(on_connection_create_end)
     trace_config.on_request_end.append(on_request_end)
 
+    if args.certifi:
+        ssl_context = ssl.create_default_context(cafile=get_certifi_location())
+    else:
+        ssl_context = ssl.create_default_context()
+
     async with aiohttp.ClientSession(
-        trace_configs=[trace_config], auto_decompress=args.decompress
+        trace_configs=[trace_config], auto_decompress=args.decompress,
+        connector=aiohttp.TCPConnector(ssl=ssl_context),
     ) as session:
         async with session.get(args.url + "/.zmetadata") as r:
             metadata = await r.json(content_type=None)
