@@ -16,6 +16,7 @@ get_perf_time = time.monotonic
 
 def get_certifi_location() -> str:
     import certifi
+
     return certifi.where()
 
 
@@ -278,7 +279,8 @@ async def main() -> int:
         ssl_context = ssl.create_default_context()
 
     async with aiohttp.ClientSession(
-        trace_configs=[trace_config], auto_decompress=args.decompress,
+        trace_configs=[trace_config],
+        auto_decompress=args.decompress,
         connector=aiohttp.TCPConnector(ssl=ssl_context),
     ) as session:
         async with session.get(args.url + "/.zmetadata") as r:
